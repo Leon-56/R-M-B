@@ -1,3 +1,2 @@
-# R-M-B
-Risk of Monster: Borne
-基于UE4开发的ARPG项目，致敬Monster Hunter: World 以及Risk of Rain 2.
+# Risk of Monster: Borne (RMB)
+ARPG project based on UnrealEngine 4, salute to Monster Hunter: World and Risk of Rain 2.
