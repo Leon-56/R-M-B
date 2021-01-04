@@ -1,18 +1,11 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿#include "RMBSurvivorCharacter.h"
 
-#include "RMBCharacter.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
-//////////////////////////////////////////////////////////////////////////
-// ARMBCharacter
-
-ARMBCharacter::ARMBCharacter()
+ARMBSurvivorCharacter::ARMBSurvivorCharacter(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -47,64 +40,26 @@ ARMBCharacter::ARMBCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void ARMBCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void ARMBSurvivorCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ARMBCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ARMBCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ARMBSurvivorCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ARMBSurvivorCharacter::MoveRight);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &ARMBCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("TurnRate", this, &ARMBSurvivorCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ARMBCharacter::LookUpAtRate);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARMBCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ARMBCharacter::TouchStopped);
-
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ARMBCharacter::OnResetVR);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &ARMBSurvivorCharacter::LookUpAtRate);
 }
 
-
-void ARMBCharacter::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
-}
-
-void ARMBCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-		Jump();
-}
-
-void ARMBCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-		StopJumping();
-}
-
-void ARMBCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void ARMBCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
-void ARMBCharacter::MoveForward(float Value)
+void ARMBSurvivorCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
@@ -118,7 +73,7 @@ void ARMBCharacter::MoveForward(float Value)
 	}
 }
 
-void ARMBCharacter::MoveRight(float Value)
+void ARMBSurvivorCharacter::MoveRight(float Value)
 {
 	if ( (Controller != NULL) && (Value != 0.0f) )
 	{
@@ -131,4 +86,16 @@ void ARMBCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void ARMBSurvivorCharacter::TurnAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ARMBSurvivorCharacter::LookUpAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }

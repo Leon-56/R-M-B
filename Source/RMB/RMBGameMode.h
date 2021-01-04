@@ -1,4 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -6,13 +5,25 @@
 #include "GameFramework/GameModeBase.h"
 #include "RMBGameMode.generated.h"
 
-UCLASS(minimalapi)
-class ARMBGameMode : public AGameModeBase
+UCLASS()
+class RMB_API ARMBGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	ARMBGameMode();
+	ARMBGameModeBase();
+	void SurvivorDied(AController* Controller);
+
+protected:
+	float RespawnDelay;
+
+	TSubclassOf<class ARMBSurvivorCharacter> SurvivorClass;
+
+	AActor* EnemySpawnPoint;
+
+	virtual void BeginPlay() override;
+
+	void RespawnSurvivor(AController* Controller);
 };
 
 
