@@ -47,7 +47,7 @@ class RMB_API ARMBSurvivorCharacter : public ARMBCharacterBase
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+	class UCameraComponent* TopDownCamera;
 public:
 	ARMBSurvivorCharacter(const class FObjectInitializer& ObjectInitializer);
 
@@ -86,5 +86,5 @@ protected:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE class UCameraComponent* GetTopDownCamera() const { return TopDownCamera; }
 };
