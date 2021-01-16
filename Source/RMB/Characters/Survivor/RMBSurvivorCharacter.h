@@ -51,6 +51,14 @@ class RMB_API ARMBSurvivorCharacter : public ARMBCharacterBase
 public:
 	ARMBSurvivorCharacter(const class FObjectInitializer& ObjectInitializer);
 
+	// Only called on the Server. Calls before Server's AcknowledgePossession.
+	virtual void PossessedBy(AController* NewController) override;
+
+	// Getter for LineTraceTargetActor. Spawns it if it doesn't exist yet.
+	UFUNCTION(BlueprintCallable, Category = "RMB|Targeting")
+    ARMBGATA_LineTrace* GetLineTraceTargetActor();
+
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -72,19 +80,26 @@ protected:
 	*/
 	void TurnAtRate(float Rate);
 
-	/**
-	* Called via input to turn look up/down at a given rate. 
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void LookUpAtRate(float Rate);
-
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	void BindASCInput();
+
+	bool bASCInputBound;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "RMB|RMBSurvivor")
+	TSubclassOf<UGameplayEffect> ReviveEffect;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "RMB|RMBSurvivor")
+	TSubclassOf<UGameplayEffect> DeathEffect;
+	
 	public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCamera() const { return TopDownCamera; }
+
+	UPROPERTY()
+	ARMBGATA_LineTrace* LineTraceTargetActor;
 };
