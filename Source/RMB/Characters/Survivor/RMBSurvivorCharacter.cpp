@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "RMB/Player/RMBPlayerState.h"
 
 ARMBSurvivorCharacter::ARMBSurvivorCharacter(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -13,6 +14,8 @@ ARMBSurvivorCharacter::ARMBSurvivorCharacter(const class FObjectInitializer& Obj
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
+
+	bASCInputBound = false;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -57,8 +60,22 @@ void ARMBSurvivorCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &ARMBSurvivorCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ARMBSurvivorCharacter::LookUpAtRate);
+
+	BindASCInput();
+}
+
+void ARMBSurvivorCharacter::BindASCInput()
+{
+	if (!bASCInputBound && IsValid(AbilitySystemComponent) && IsValid(InputComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent,
+			FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+				FString("CancelTarget"), FString("ERMBAbilityInputID"),
+			                           static_cast<int32>(ERMBAbilityInputID::Confirm),
+			                           static_cast<int32>(ERMBAbilityInputID::Cancel)));
+
+		bASCInputBound = true;
+	}
 }
 
 void ARMBSurvivorCharacter::MoveForward(float Value)
@@ -96,8 +113,30 @@ void ARMBSurvivorCharacter::TurnAtRate(float Rate)
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ARMBSurvivorCharacter::LookUpAtRate(float Rate)
+void ARMBSurvivorCharacter::PossessedBy(AController* NewController)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	Super::PossessedBy(NewController);
+
+	ARMBPlayerState* PS = GetPlayerState<ARMBPlayerState>();
+	if (PS)
+	{
+		// Set the ASC on the Server. Clients do this in OnRep_PlayerState()
+		AbilitySystemComponent = Cast<URMBAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+
+		
+		AddCharacterAbilities();
+	}
+
+}
+
+ARMBGATA_LineTrace* ARMBSurvivorCharacter::GetLineTraceTargetActor()
+{
+	if (LineTraceTargetActor)
+	{
+		return LineTraceTargetActor;
+	}
+
+	LineTraceTargetActor = GetWorld()->SpawnActor<ARMBGATA_LineTrace>();
+	LineTraceTargetActor->SetOwner(this);
+	return LineTraceTargetActor;
 }

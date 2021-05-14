@@ -10,7 +10,7 @@ ARMBGameModeBase::ARMBGameModeBase()
 {
 	RespawnDelay = 5.0f;
 
-	SurvivorClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/02_Blueprint/ThirdPersonCharacter"));
+	SurvivorClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/02_Blueprint/03_Survivor/BP_Survivor"));
 	if (!SurvivorClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find SurvivorClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
